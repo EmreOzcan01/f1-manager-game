@@ -22,7 +22,7 @@ export default async function DashboardPage() {
     .eq('status', 'upcoming')
     .order('scheduled_at', { ascending: true })
     .limit(1)
-    .single();
+    .maybeSingle();
 
   // Fetch all teams for standings
   const { data: standings } = await supabase

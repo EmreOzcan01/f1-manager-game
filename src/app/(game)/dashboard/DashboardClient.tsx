@@ -92,7 +92,7 @@ export default function DashboardClient({
       </div>
 
       {/* Next Race Card */}
-      {nextRace && (
+      {nextRace ? (
         <div className="card p-4 mb-4 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 opacity-5">
             <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full text-white">
@@ -132,6 +132,26 @@ export default function DashboardClient({
               Set Strategy →
             </button>
           </div>
+        </div>
+      ) : (
+        <div className="card p-4 mb-4 relative overflow-hidden bg-gradient-to-br from-[#fbbf24]/10 to-[#ef4444]/5 border-[#fbbf24]/20 shadow-[0_4px_16px_rgba(251,191,36,0.04)]">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs font-medium px-2 py-0.5 rounded bg-[#fbbf24]/20 text-[#fbbf24] uppercase tracking-wider">
+              Season Concluded
+            </span>
+          </div>
+          <h3 className="text-base font-bold mb-1 font-racing text-[#fbbf24] flex items-center gap-1.5">
+            <span>🏆</span> Championship Finished!
+          </h3>
+          <p className="text-xs text-[var(--foreground-muted)] mb-4 leading-relaxed">
+            All rounds of the current season calendar have been simulated. Review final constructor and driver standings, collect your seasonal prize money, and advance to the next season.
+          </p>
+          <button
+            onClick={() => router.push('/standings')}
+            className="btn-primary text-xs px-4 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] hover:from-[#f59e0b] hover:to-[#d97706] text-black border-transparent font-bold flex items-center gap-1 shadow-[0_2px_8px_rgba(245,158,11,0.25)]"
+          >
+            Go to Standings & Payouts →
+          </button>
         </div>
       )}
 

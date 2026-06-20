@@ -115,14 +115,12 @@ export default function RaceCanvas({
     };
   }, []);
 
-  // When frame changes, reset interpolation sub-progress
-  const prevFrameRef = useRef(currentFrame);
-  if (prevFrameRef.current !== currentFrame) {
+  // When frame changes, reset interpolation sub-progress in an effect to avoid render warnings
+  useEffect(() => {
     subFrameProgressRef.current = 0;
     lastReportedProgressRef.current = 0;
     onProgressTick(0);
-    prevFrameRef.current = currentFrame;
-  }
+  }, [currentFrame, onProgressTick]);
 
   // Helper: Hex color to RGB object
   const hexToRgb = (hex: string): { r: number; g: number; b: number } => {
