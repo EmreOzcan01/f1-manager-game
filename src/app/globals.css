@@ -430,3 +430,51 @@ body {
   text-overflow: ellipsis;
   max-width: 56px;
 }
+
+/* ============================================
+   RANGE SLIDER — custom styled
+   ============================================ */
+
+.range-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: var(--background-elevated);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent-secondary);
+  border: 2px solid var(--background-card);
+  box-shadow: 0 0 8px rgba(37, 99, 235, 0.3);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.range-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 14px rgba(37, 99, 235, 0.5);
+}
+
+.range-slider::-webkit-slider-thumb:active {
+  transform: scale(1.05);
+}
+
+.range-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent-secondary);
+  border: 2px solid var(--background-card);
+  box-shadow: 0 0 8px rgba(37, 99, 235, 0.3);
+  cursor: pointer;
+}
+

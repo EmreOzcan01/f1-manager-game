@@ -1,11 +1,59 @@
-export default function StrategyPage() {
+import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
+import StrategyClient from './StrategyClient';
+
+export default async function StrategyPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) redirect('/login');
+
+  // Fetch user's team
+  const { data: team } = await supabase
+    .from('teams')
+    .select('*')
+    .eq('owner_id', user.id)
+    .single();
+
+  if (!team) redirect('/dashboard');
+
+  // Fetch next upcoming race
+  const { data: nextRace } = await supabase
+    .from('races')
+    .select('*')
+    .eq('status', 'upcoming')
+    .order('scheduled_at', { ascending: true })
+    .limit(1)
+    .single();
+
+  // Fetch existing strategies for this race (if any)
+  let existingStrategies: any[] = [];
+  if (nextRace) {
+    const { data: strategies } = await supabase
+      .from('race_strategies')
+      .select('*')
+      .eq('team_id', team.id)
+      .eq('race_id', nextRace.id);
+
+    existingStrategies = strategies || [];
+  }
+
+  // Fetch user's drivers (to show in strategy info)
+  const { data: teamDrivers } = await supabase
+    .from('team_drivers')
+    .select(`
+      seat_number,
+      drivers (name, nationality, pace, racecraft)
+    `)
+    .eq('team_id', team.id)
+    .order('seat_number', { ascending: true });
+
   return (
-    <div className="px-4 pt-4">
-      <h1 className="font-racing text-xl font-bold text-gradient mb-4">STRATEGY</h1>
-      <div className="card p-8 text-center">
-        <p className="text-3xl mb-2">📋</p>
-        <p className="text-sm text-[var(--foreground-muted)]">Strategy module coming in Phase 5</p>
-      </div>
-    </div>
+    <StrategyClient
+      team={team}
+      nextRace={nextRace}
+      existingStrategies={existingStrategies}
+      drivers={teamDrivers || []}
+    />
   );
 }

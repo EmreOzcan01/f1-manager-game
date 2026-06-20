@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏎️ F1 Manager Game
 
-## Getting Started
+A browser-based, mobile-first Formula 1 management game built with modern web technologies. Manage your racing empire, sign top drivers, upgrade your car parts in the garage, and plan race-winning strategies.
 
-First, run the development server:
+## 🌟 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Team Management:** Create your own racing team, manage your budget, and track your standings.
+- **Driver Market:** Sign free agents or release drivers. Every driver has unique stats (Pace, Racecraft, Experience, etc.) affecting race performance.
+- **Garage Upgrades:** Invest your budget into 7 key car components (Engine, Aero, Chassis, Gearbox, Suspension, Brakes, Cooling). Features real-time countdown timers for ongoing research.
+- **Race Strategy:** Assign unique tire and fuel strategies for each driver on your team. Adjust driving aggression and fuel modes to adapt to the race.
+- **Serverless Race Simulator:** Races are simulated automatically using Vercel Cron Jobs.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 💻 Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Framework:** [Next.js 16](https://nextjs.org) (App Router)
+- **Styling:** Tailwind CSS v4 & custom CSS with a premium dark-mode aesthetic
+- **Database & Auth:** [Supabase](https://supabase.com/) (PostgreSQL + Row Level Security)
+- **State Management:** [Zustand](https://github.com/pmndrs/zustand)
+- **Deployment:** [Vercel](https://vercel.com/) (Serverless Functions + Cron Jobs)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 Getting Started
 
-## Learn More
+1. **Clone the repository** and install dependencies:
+   ```bash
+   npm install
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. **Set up Environment Variables:**
+   Copy `.env.example` to `.env.local` and add your Supabase credentials:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+   SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+   CRON_SECRET=your_cron_secret
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Run Database Migrations:**
+   Run the SQL files in `supabase/migrations/` using the Supabase Dashboard SQL Editor, or use the Supabase CLI if linked:
+   ```bash
+   npx supabase db push
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. **Start the Development Server:**
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:3000](http://localhost:3000) to view the app.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📝 License
+This project is open-source and available for educational purposes.

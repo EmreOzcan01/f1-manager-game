@@ -55,7 +55,7 @@ export interface LeaderboardEntry {
 }
 
 /** Bottom navigation tab IDs */
-export type TabId = 'dashboard' | 'garage' | 'drivers' | 'strategy' | 'race' | 'standings' | 'market';
+export type TabId = 'dashboard' | 'garage' | 'drivers' | 'strategy' | 'race' | 'standings';
 
 /** Notification for in-game events */
 export interface GameNotification {
