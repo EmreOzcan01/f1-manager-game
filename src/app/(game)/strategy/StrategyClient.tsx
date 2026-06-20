@@ -82,6 +82,7 @@ export default function StrategyClient({
   const [fuelLoad, setFuelLoad] = useState<number>(currentStrategy?.fuel_load ?? 100);
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   // Sync state when selected driver changes
   useEffect(() => {
     if (!selectedDriverId) return;

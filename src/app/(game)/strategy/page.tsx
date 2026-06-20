@@ -43,7 +43,7 @@ export default async function StrategyPage() {
     .from('team_drivers')
     .select(`
       seat_number,
-      drivers (name, nationality, pace, racecraft)
+      drivers (id, name, nationality, pace, racecraft)
     `)
     .eq('team_id', team.id)
     .order('seat_number', { ascending: true });
