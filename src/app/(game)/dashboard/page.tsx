@@ -61,6 +61,18 @@ export default async function DashboardPage() {
     parts = carParts;
   }
 
+  // Fetch recent financial transactions
+  let transactions = null;
+  if (team) {
+    const { data: finances } = await supabase
+      .from('finances')
+      .select('*')
+      .eq('team_id', team.id)
+      .order('created_at', { ascending: false })
+      .limit(30);
+    transactions = finances;
+  }
+
   // Fetch user profile
   const { data: profile } = await supabase
     .from('profiles')
@@ -77,6 +89,7 @@ export default async function DashboardPage() {
       parts={parts}
       nextRace={nextRace}
       standings={standings}
+      transactions={transactions || []}
     />
   );
 }

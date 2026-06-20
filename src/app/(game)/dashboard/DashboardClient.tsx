@@ -13,6 +13,7 @@ interface DashboardProps {
   parts: any[] | null;
   nextRace: any | null;
   standings: any[] | null;
+  transactions?: any[];
 }
 
 export default function DashboardClient({
@@ -23,8 +24,10 @@ export default function DashboardClient({
   parts,
   nextRace,
   standings,
+  transactions = [],
 }: DashboardProps) {
   const router = useRouter();
+  const [activeSubTab, setActiveSubTab] = useState<'overview' | 'finances'>('overview');
 
   // If no team yet, show team creation
   if (!team) {
@@ -66,219 +69,358 @@ export default function DashboardClient({
         </div>
       </div>
 
-      {/* Team Card */}
-      <div className="card p-4 mb-4 card-glow-red">
-        <div className="flex items-center gap-3 mb-3">
-          <div
-            className="w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold font-racing"
-            style={{ background: `${team.primary_color}22`, color: team.primary_color }}
-          >
-            {team.name.charAt(0)}
-          </div>
-          <div className="flex-1 min-w-0">
-            <h2 className="text-base font-bold truncate">{team.name}</h2>
-            <p className="text-xs text-[var(--foreground-muted)]">
-              HQ Level {team.hq_level} • Rep: {team.reputation}/100
-            </p>
-          </div>
-        </div>
-
-        {/* Quick Stats */}
-        <div className="grid grid-cols-3 gap-3">
-          <StatBox label="Car Perf." value={`${carPerformance}`} suffix="/100" color="var(--accent-primary)" />
-          <StatBox label="Reliability" value={`${carReliability}`} suffix="/100" color="var(--accent-secondary)" />
-          <StatBox label="Drivers" value={`${drivers?.length || 0}`} suffix="/2" color="var(--color-success)" />
-        </div>
+      {/* Sub-tabs: Overview & Finances */}
+      <div className="flex gap-1 p-1 bg-[var(--background-secondary)] border border-[var(--border-color)] rounded-xl mb-5">
+        <button
+          onClick={() => setActiveSubTab('overview')}
+          className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+            activeSubTab === 'overview'
+              ? 'bg-[var(--background-elevated)] text-white shadow-sm border border-[var(--border-color)]'
+              : 'text-[var(--foreground-muted)] hover:text-[var(--foreground-secondary)]'
+          }`}
+          id="btn-subtab-overview"
+        >
+          Overview
+        </button>
+        <button
+          onClick={() => setActiveSubTab('finances')}
+          className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+            activeSubTab === 'finances'
+              ? 'bg-[var(--background-elevated)] text-white shadow-sm border border-[var(--border-color)]'
+              : 'text-[var(--foreground-muted)] hover:text-[var(--foreground-secondary)]'
+          }`}
+          id="btn-subtab-finances"
+        >
+          Finances & Budget
+        </button>
       </div>
 
-      {/* Next Race Card */}
-      {nextRace ? (
-        <div className="card p-4 mb-4 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 opacity-5">
-            <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full text-white">
-              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-              <line x1="4" y1="22" x2="4" y2="15" stroke="currentColor" strokeWidth="2" />
-            </svg>
-          </div>
-
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] uppercase tracking-wider">
-              Next Race
-            </span>
-            <span className="text-xs text-[var(--foreground-muted)]">
-              Round {nextRace.round_number}
-            </span>
-          </div>
-
-          <h3 className="text-base font-bold mb-1">
-            {getFlag(nextRace.track_country)} {nextRace.track_name}
-          </h3>
-          <p className="text-xs text-[var(--foreground-muted)] mb-3">
-            {nextRace.track_country} • {nextRace.track_length_km} km • {nextRace.total_laps} laps
-          </p>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-[var(--foreground-muted)]">Starts in</p>
-              <p className="font-racing text-lg font-bold text-[var(--accent-primary)]">
-                {formatTimeRemaining(nextRace.scheduled_at)}
-              </p>
+      {activeSubTab === 'overview' ? (
+        <>
+          {/* Team Card */}
+          <div className="card p-4 mb-4 card-glow-red">
+            <div className="flex items-center gap-3 mb-3">
+              <div
+                className="w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold font-racing"
+                style={{ background: `${team.primary_color}22`, color: team.primary_color }}
+              >
+                {team.name.charAt(0)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h2 className="text-base font-bold truncate">{team.name}</h2>
+                <p className="text-xs text-[var(--foreground-muted)]">
+                  HQ Level {team.hq_level} • Rep: {team.reputation}/100
+                </p>
+              </div>
             </div>
-            <button
-              onClick={() => router.push('/strategy')}
-              className="btn-primary text-xs px-4 py-2"
-              id="btn-set-strategy"
-            >
-              Set Strategy →
-            </button>
+
+            {/* Quick Stats */}
+            <div className="grid grid-cols-3 gap-3">
+              <StatBox label="Car Perf." value={`${carPerformance}`} suffix="/100" color="var(--accent-primary)" />
+              <StatBox label="Reliability" value={`${carReliability}`} suffix="/100" color="var(--accent-secondary)" />
+              <StatBox label="Drivers" value={`${drivers?.length || 0}`} suffix="/2" color="var(--color-success)" />
+            </div>
           </div>
-        </div>
+
+          {/* Next Race Card */}
+          {nextRace ? (
+            <div className="card p-4 mb-4 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 opacity-5">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full text-white">
+                  <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+                  <line x1="4" y1="22" x2="4" y2="15" stroke="currentColor" strokeWidth="2" />
+                </svg>
+              </div>
+
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-[var(--accent-primary)]/20 text-[var(--accent-primary)] uppercase tracking-wider">
+                  Next Race
+                </span>
+                <span className="text-xs text-[var(--foreground-muted)]">
+                  Round {nextRace.round_number}
+                </span>
+              </div>
+
+              <h3 className="text-base font-bold mb-1">
+                {getFlag(nextRace.track_country)} {nextRace.track_name}
+              </h3>
+              <p className="text-xs text-[var(--foreground-muted)] mb-3">
+                {nextRace.track_country} • {nextRace.track_length_km} km • {nextRace.total_laps} laps
+              </p>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-[var(--foreground-muted)]">Starts in</p>
+                  <p className="font-racing text-lg font-bold text-[var(--accent-primary)]">
+                    {formatTimeRemaining(nextRace.scheduled_at)}
+                  </p>
+                </div>
+                <button
+                  onClick={() => router.push('/strategy')}
+                  className="btn-primary text-xs px-4 py-2"
+                  id="btn-set-strategy"
+                >
+                  Set Strategy →
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="card p-4 mb-4 relative overflow-hidden bg-gradient-to-br from-[#fbbf24]/10 to-[#ef4444]/5 border-[#fbbf24]/20 shadow-[0_4px_16px_rgba(251,191,36,0.04)]">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs font-medium px-2 py-0.5 rounded bg-[#fbbf24]/20 text-[#fbbf24] uppercase tracking-wider">
+                  Season Concluded
+                </span>
+              </div>
+              <h3 className="text-base font-bold mb-1 font-racing text-[#fbbf24] flex items-center gap-1.5">
+                <span>🏆</span> Championship Finished!
+              </h3>
+              <p className="text-xs text-[var(--foreground-muted)] mb-4 leading-relaxed">
+                All rounds of the current season calendar have been simulated. Review final constructor and driver standings, collect your seasonal prize money, and advance to the next season.
+              </p>
+              <button
+                onClick={() => router.push('/standings')}
+                className="btn-primary text-xs px-4 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] hover:from-[#f59e0b] hover:to-[#d97706] text-black border-transparent font-bold flex items-center gap-1 shadow-[0_2px_8px_rgba(245,158,11,0.25)]"
+              >
+                Go to Standings & Payouts →
+              </button>
+            </div>
+          )}
+
+          {/* Drivers */}
+          {drivers && drivers.length > 0 && (
+            <div className="mb-4">
+              <h3 className="text-xs font-semibold text-[var(--foreground-muted)] uppercase tracking-wider mb-2">
+                Your Drivers
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
+                {drivers.map((td: any, i: number) => {
+                  const d = td.drivers;
+                  if (!d) return null;
+                  const overall = Math.round(
+                    d.pace * 0.35 + d.racecraft * 0.25 + d.awareness * 0.15 +
+                    d.experience * 0.10 + d.consistency * 0.15
+                  );
+                  return (
+                    <div key={i} className="card p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-8 h-8 rounded-lg bg-[var(--background)] flex items-center justify-center text-sm">
+                          {getFlag(d.nationality)}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold truncate">{d.name}</p>
+                          <p className="text-[10px] text-[var(--foreground-muted)]">
+                            Seat #{td.seat_number} • Age {d.age}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-[var(--foreground-muted)]">Overall</span>
+                        <span className="font-racing text-sm font-bold" style={{
+                          color: overall >= 80 ? 'var(--color-success)' :
+                                 overall >= 60 ? 'var(--accent-secondary)' :
+                                 'var(--color-warning)'
+                        }}>
+                          {overall}
+                        </span>
+                      </div>
+                      <div className="stat-bar mt-1">
+                        <div
+                          className={`stat-bar-fill ${
+                            overall >= 80 ? 'excellent' :
+                            overall >= 60 ? 'good' :
+                            overall >= 40 ? 'average' : 'poor'
+                          }`}
+                          style={{ width: `${overall}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Standings Preview */}
+          {standings && standings.length > 0 && (
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-xs font-semibold text-[var(--foreground-muted)] uppercase tracking-wider">
+                  Championship Standings
+                </h3>
+                <button
+                  onClick={() => router.push('/standings')}
+                  className="text-xs text-[var(--accent-primary)]"
+                >
+                  View All →
+                </button>
+              </div>
+              <div className="card divide-y divide-[var(--border-color)]">
+                {standings.slice(0, 5).map((s: any, i: number) => {
+                  const t = s.teams;
+                  const isPlayerTeam = t?.id === team.id;
+                  return (
+                    <div
+                      key={i}
+                      className={`flex items-center gap-3 px-4 py-3 ${
+                        isPlayerTeam ? 'bg-[var(--accent-primary)]/5' : ''
+                      }`}
+                    >
+                      <span className={`font-racing text-sm w-6 text-center ${
+                        i === 0 ? 'text-[#fbbf24]' :
+                        i === 1 ? 'text-[#94a3b8]' :
+                        i === 2 ? 'text-[#d97706]' :
+                        'text-[var(--foreground-muted)]'
+                      }`}>
+                        {i + 1}
+                      </span>
+                      <div
+                        className="w-3 h-3 rounded-sm flex-shrink-0"
+                        style={{ background: t?.primary_color || '#666' }}
+                      />
+                      <span className={`text-sm flex-1 truncate ${
+                        isPlayerTeam ? 'font-bold text-[var(--foreground)]' : 'text-[var(--foreground-secondary)]'
+                      }`}>
+                        {t?.name || 'Unknown'}
+                        {isPlayerTeam && (
+                          <span className="text-[10px] ml-1 text-[var(--accent-primary)]">YOU</span>
+                        )}
+                      </span>
+                      <span className="font-racing text-sm font-bold">
+                        {s.total_points} <span className="text-[10px] text-[var(--foreground-muted)] font-normal">pts</span>
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* No drivers hint */}
+          {(!drivers || drivers.length === 0) && (
+            <div className="card p-6 text-center mb-4">
+              <p className="text-3xl mb-2">🏎️</p>
+              <p className="text-sm font-semibold mb-1">No Drivers Signed</p>
+              <p className="text-xs text-[var(--foreground-muted)] mb-3">
+                Head to the Drivers section to sign your first driver!
+              </p>
+              <button
+                onClick={() => router.push('/drivers')}
+                className="btn-primary text-xs px-4 py-2"
+                id="btn-sign-drivers"
+              >
+                Browse Drivers
+              </button>
+            </div>
+          )}
+        </>
       ) : (
-        <div className="card p-4 mb-4 relative overflow-hidden bg-gradient-to-br from-[#fbbf24]/10 to-[#ef4444]/5 border-[#fbbf24]/20 shadow-[0_4px_16px_rgba(251,191,36,0.04)]">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs font-medium px-2 py-0.5 rounded bg-[#fbbf24]/20 text-[#fbbf24] uppercase tracking-wider">
-              Season Concluded
+        <div className="space-y-4 animate-fade-in">
+          {/* Payout & budget stats cards */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="card p-3.5 bg-gradient-to-br from-[#22c55e]/10 to-[#151522] border-[#22c55e]/20">
+              <span className="text-[10px] text-[var(--foreground-muted)] uppercase tracking-wider block">Total Earnings</span>
+              <span className="text-sm font-bold text-[#22c55e] font-racing">
+                {formatMoney(
+                  transactions
+                    .filter((t: any) => t.amount > 0)
+                    .reduce((sum: number, t: any) => sum + Number(t.amount), 0)
+                )}
+              </span>
+            </div>
+            <div className="card p-3.5 bg-gradient-to-br from-[#ef4444]/10 to-[#151522] border-[#ef4444]/20">
+              <span className="text-[10px] text-[var(--foreground-muted)] uppercase tracking-wider block">Total Expenditures</span>
+              <span className="text-sm font-bold text-[#ef4444] font-racing">
+                {formatMoney(
+                  Math.abs(
+                    transactions
+                      .filter((t: any) => t.amount < 0)
+                      .reduce((sum: number, t: any) => sum + Number(t.amount), 0)
+                  )
+                )}
+              </span>
+            </div>
+          </div>
+
+          {/* Budget Statement card */}
+          <div className="card p-4 bg-gradient-to-br from-[var(--background-card)] to-[#0c0c12] border-[var(--border-color)]">
+            <span className="text-[10px] text-[var(--foreground-muted)] uppercase tracking-wider block mb-0.5">Available Balance</span>
+            <span className="text-2xl font-black text-[var(--color-success)] font-racing block">
+              {formatMoney(team.budget)}
             </span>
           </div>
-          <h3 className="text-base font-bold mb-1 font-racing text-[#fbbf24] flex items-center gap-1.5">
-            <span>🏆</span> Championship Finished!
-          </h3>
-          <p className="text-xs text-[var(--foreground-muted)] mb-4 leading-relaxed">
-            All rounds of the current season calendar have been simulated. Review final constructor and driver standings, collect your seasonal prize money, and advance to the next season.
-          </p>
-          <button
-            onClick={() => router.push('/standings')}
-            className="btn-primary text-xs px-4 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] hover:from-[#f59e0b] hover:to-[#d97706] text-black border-transparent font-bold flex items-center gap-1 shadow-[0_2px_8px_rgba(245,158,11,0.25)]"
-          >
-            Go to Standings & Payouts →
-          </button>
-        </div>
-      )}
 
-      {/* Drivers */}
-      {drivers && drivers.length > 0 && (
-        <div className="mb-4">
-          <h3 className="text-xs font-semibold text-[var(--foreground-muted)] uppercase tracking-wider mb-2">
-            Your Drivers
-          </h3>
-          <div className="grid grid-cols-2 gap-3">
-            {drivers.map((td: any, i: number) => {
-              const d = td.drivers;
-              if (!d) return null;
-              const overall = Math.round(
-                d.pace * 0.35 + d.racecraft * 0.25 + d.awareness * 0.15 +
-                d.experience * 0.10 + d.consistency * 0.15
-              );
-              return (
-                <div key={i} className="card p-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-8 h-8 rounded-lg bg-[var(--background)] flex items-center justify-center text-sm">
-                      {getFlag(d.nationality)}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold truncate">{d.name}</p>
-                      <p className="text-[10px] text-[var(--foreground-muted)]">
-                        Seat #{td.seat_number} • Age {d.age}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-[var(--foreground-muted)]">Overall</span>
-                    <span className="font-racing text-sm font-bold" style={{
-                      color: overall >= 80 ? 'var(--color-success)' :
-                             overall >= 60 ? 'var(--accent-secondary)' :
-                             'var(--color-warning)'
-                    }}>
-                      {overall}
-                    </span>
-                  </div>
-                  <div className="stat-bar mt-1">
-                    <div
-                      className={`stat-bar-fill ${
-                        overall >= 80 ? 'excellent' :
-                        overall >= 60 ? 'good' :
-                        overall >= 40 ? 'average' : 'poor'
-                      }`}
-                      style={{ width: `${overall}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Standings Preview */}
-      {standings && standings.length > 0 && (
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xs font-semibold text-[var(--foreground-muted)] uppercase tracking-wider">
-              Championship Standings
+          {/* Transactions List */}
+          <div>
+            <h3 className="text-xs font-semibold text-[var(--foreground-muted)] uppercase tracking-wider mb-2.5">
+              Economy Feed (Recent Activity)
             </h3>
-            <button
-              onClick={() => router.push('/standings')}
-              className="text-xs text-[var(--accent-primary)]"
-            >
-              View All →
-            </button>
-          </div>
-          <div className="card divide-y divide-[var(--border-color)]">
-            {standings.slice(0, 5).map((s: any, i: number) => {
-              const t = s.teams;
-              const isPlayerTeam = t?.id === team.id;
-              return (
-                <div
-                  key={i}
-                  className={`flex items-center gap-3 px-4 py-3 ${
-                    isPlayerTeam ? 'bg-[var(--accent-primary)]/5' : ''
-                  }`}
-                >
-                  <span className={`font-racing text-sm w-6 text-center ${
-                    i === 0 ? 'text-[#fbbf24]' :
-                    i === 1 ? 'text-[#94a3b8]' :
-                    i === 2 ? 'text-[#d97706]' :
-                    'text-[var(--foreground-muted)]'
-                  }`}>
-                    {i + 1}
-                  </span>
-                  <div
-                    className="w-3 h-3 rounded-sm flex-shrink-0"
-                    style={{ background: t?.primary_color || '#666' }}
-                  />
-                  <span className={`text-sm flex-1 truncate ${
-                    isPlayerTeam ? 'font-bold text-[var(--foreground)]' : 'text-[var(--foreground-secondary)]'
-                  }`}>
-                    {t?.name || 'Unknown'}
-                    {isPlayerTeam && (
-                      <span className="text-[10px] ml-1 text-[var(--accent-primary)]">YOU</span>
-                    )}
-                  </span>
-                  <span className="font-racing text-sm font-bold">
-                    {s.total_points} <span className="text-[10px] text-[var(--foreground-muted)] font-normal">pts</span>
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+            <div className="card divide-y divide-[var(--border-color)] overflow-hidden">
+              {transactions.length > 0 ? (
+                transactions.map((t: any) => {
+                  const isIncome = t.amount > 0;
+                  const absAmount = Math.abs(t.amount);
+                  
+                  // Get nice icon based on type
+                  let icon = '💵';
+                  let typeLabel = 'Transaction';
+                  if (t.type === 'prize_money') {
+                    icon = '🏆';
+                    typeLabel = 'Prize Payout';
+                  } else if (t.type === 'driver_transfer') {
+                    icon = '👤';
+                    typeLabel = 'Driver Signing';
+                  } else if (t.type === 'part_upgrade') {
+                    icon = '🔧';
+                    typeLabel = 'Part Upgrade';
+                  } else if (t.type === 'driver_salary') {
+                    icon = '💸';
+                    typeLabel = 'Driver Salary';
+                  } else if (t.type === 'sponsor') {
+                    icon = '👔';
+                    typeLabel = 'Sponsor Income';
+                  } else if (t.type === 'hq_upgrade') {
+                    icon = '🏢';
+                    typeLabel = 'HQ Upgrade';
+                  } else if (t.type === 'penalty') {
+                    icon = '⚠️';
+                    typeLabel = 'Penalty Fine';
+                  }
 
-      {/* No drivers hint */}
-      {(!drivers || drivers.length === 0) && (
-        <div className="card p-6 text-center mb-4">
-          <p className="text-3xl mb-2">🏎️</p>
-          <p className="text-sm font-semibold mb-1">No Drivers Signed</p>
-          <p className="text-xs text-[var(--foreground-muted)] mb-3">
-            Head to the Drivers section to sign your first driver!
-          </p>
-          <button
-            onClick={() => router.push('/drivers')}
-            className="btn-primary text-xs px-4 py-2"
-            id="btn-sign-drivers"
-          >
-            Browse Drivers
-          </button>
+                  const dateStr = new Date(t.created_at).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                  });
+
+                  return (
+                    <div key={t.id} className="flex items-center gap-3 px-4 py-3.5 hover:bg-white/[0.01] transition-colors">
+                      <div className="w-9 h-9 rounded-xl bg-[var(--background-elevated)] border border-[var(--border-color)] flex items-center justify-center text-base flex-shrink-0">
+                        {icon}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start mb-0.5">
+                          <p className="text-xs font-semibold text-[var(--foreground-secondary)] truncate">
+                            {typeLabel}
+                          </p>
+                          <span className={`text-xs font-racing font-bold ${isIncome ? 'text-[#22c55e]' : t.amount === 0 ? 'text-[var(--foreground-muted)]' : 'text-[#ef4444]'}`}>
+                            {isIncome ? '+' : t.amount === 0 ? '' : '-'}{formatMoney(absAmount)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center text-[10px] text-[var(--foreground-muted)]">
+                          <p className="truncate pr-4">{t.description}</p>
+                          <p className="flex-shrink-0">{dateStr}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="p-8 text-center text-[var(--foreground-muted)] text-xs">
+                  No transactions recorded yet. Complete races or hire drivers to populate this log.
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>
