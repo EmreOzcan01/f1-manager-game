@@ -13,25 +13,25 @@
 }
 
 :root {
-  /* Core palette — deep dark with vibrant accents */
-  --background: #0a0a0f;
-  --background-secondary: #12121a;
-  --background-card: #16161f;
-  --background-elevated: #1c1c28;
-  --background-glass: rgba(22, 22, 31, 0.85);
+  /* Core palette — deep dark with elegant accents */
+  --background: #09090d;
+  --background-secondary: #101017;
+  --background-card: #15151f;
+  --background-elevated: #1a1a26;
+  --background-glass: rgba(21, 21, 31, 0.9);
 
-  --foreground: #f0f0f5;
+  --foreground: #f1f1f6;
   --foreground-secondary: #9ca3af;
-  --foreground-muted: #6b7280;
+  --foreground-muted: #5a606c;
 
-  /* Racing red — primary accent */
-  --accent-primary: #e11d48;
-  --accent-primary-hover: #f43f5e;
-  --accent-primary-glow: rgba(225, 29, 72, 0.3);
+  /* Classic Racing Red — primary accent */
+  --accent-primary: #dc2626;
+  --accent-primary-hover: #b91c1c;
+  --accent-primary-glow: rgba(220, 38, 38, 0.1);
 
-  /* Racing blue — secondary accent */
-  --accent-secondary: #3b82f6;
-  --accent-secondary-hover: #60a5fa;
+  /* Deep Racing Blue — secondary accent */
+  --accent-secondary: #2563eb;
+  --accent-secondary-hover: #1d4ed8;
 
   /* Success / Warning / Danger */
   --color-success: #10b981;
@@ -39,18 +39,18 @@
   --color-danger: #ef4444;
 
   /* Borders & dividers */
-  --border-color: rgba(255, 255, 255, 0.06);
-  --border-color-hover: rgba(255, 255, 255, 0.12);
+  --border-color: rgba(255, 255, 255, 0.05);
+  --border-color-hover: rgba(255, 255, 255, 0.1);
 
   /* Gradients */
-  --gradient-racing: linear-gradient(135deg, #e11d48 0%, #9333ea 100%);
-  --gradient-card: linear-gradient(180deg, rgba(28, 28, 40, 0.8) 0%, rgba(16, 16, 31, 0.9) 100%);
-  --gradient-shine: linear-gradient(110deg, transparent 25%, rgba(255,255,255,0.03) 50%, transparent 75%);
+  --gradient-racing: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  --gradient-card: linear-gradient(180deg, rgba(21, 21, 31, 0.8) 0%, rgba(13, 13, 23, 0.9) 100%);
+  --gradient-shine: linear-gradient(110deg, transparent 25%, rgba(255,255,255,0.015) 50%, transparent 75%);
 
   /* Shadows */
-  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
-  --shadow-glow-red: 0 0 30px rgba(225, 29, 72, 0.15);
-  --shadow-glow-blue: 0 0 30px rgba(59, 130, 246, 0.15);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --shadow-glow-red: 0 2px 12px rgba(220, 38, 38, 0.06);
+  --shadow-glow-blue: 0 2px 12px rgba(37, 99, 235, 0.06);
 
   /* Spacing */
   --safe-bottom: env(safe-area-inset-bottom, 0px);
