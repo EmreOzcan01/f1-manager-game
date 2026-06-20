@@ -8,28 +8,28 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter), system-ui, sans-serif;
-  --font-racing: var(--font-orbitron), monospace;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-racing: "Orbitron", "Impact", "Arial Black", monospace;
 }
 
 :root {
-  /* Core palette — deep dark with elegant accents */
-  --background: #09090d;
-  --background-secondary: #101017;
-  --background-card: #15151f;
-  --background-elevated: #1a1a26;
-  --background-glass: rgba(21, 21, 31, 0.9);
+  /* Core palette — flat modern slate-charcoal, eye-friendly */
+  --background: #141418;
+  --background-secondary: #1a1a22;
+  --background-card: #20202a;
+  --background-elevated: #282834;
+  --background-glass: rgba(32, 32, 42, 0.9);
 
-  --foreground: #f1f1f6;
-  --foreground-secondary: #9ca3af;
-  --foreground-muted: #5a606c;
+  --foreground: #f3f4f6;
+  --foreground-secondary: #a1a1aa;
+  --foreground-muted: #71717a;
 
-  /* Classic Racing Red — primary accent */
+  /* Flat Racing Red — primary accent */
   --accent-primary: #dc2626;
   --accent-primary-hover: #b91c1c;
-  --accent-primary-glow: rgba(220, 38, 38, 0.1);
+  --accent-primary-glow: rgba(220, 38, 38, 0.05);
 
-  /* Deep Racing Blue — secondary accent */
+  /* Flat Racing Blue — secondary accent */
   --accent-secondary: #2563eb;
   --accent-secondary-hover: #1d4ed8;
 
@@ -39,18 +39,18 @@
   --color-danger: #ef4444;
 
   /* Borders & dividers */
-  --border-color: rgba(255, 255, 255, 0.05);
-  --border-color-hover: rgba(255, 255, 255, 0.1);
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-color-hover: rgba(255, 255, 255, 0.15);
 
-  /* Gradients */
-  --gradient-racing: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-  --gradient-card: linear-gradient(180deg, rgba(21, 21, 31, 0.8) 0%, rgba(13, 13, 23, 0.9) 100%);
-  --gradient-shine: linear-gradient(110deg, transparent 25%, rgba(255,255,255,0.015) 50%, transparent 75%);
+  /* Gradients — flat and subtle */
+  --gradient-racing: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+  --gradient-card: linear-gradient(180deg, rgba(32, 32, 42, 0.8) 0%, rgba(26, 26, 34, 0.9) 100%);
+  --gradient-shine: none;
 
-  /* Shadows */
-  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.5);
-  --shadow-glow-red: 0 2px 12px rgba(220, 38, 38, 0.06);
-  --shadow-glow-blue: 0 2px 12px rgba(37, 99, 235, 0.06);
+  /* Shadows — flat, standard */
+  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.25);
+  --shadow-glow-red: 0 4px 12px rgba(0, 0, 0, 0.25);
+  --shadow-glow-blue: 0 4px 12px rgba(0, 0, 0, 0.25);
 
   /* Spacing */
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -258,10 +258,10 @@ body {
 
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 0 15px rgba(225, 29, 72, 0.2);
+    opacity: 0.8;
   }
   50% {
-    box-shadow: 0 0 30px rgba(225, 29, 72, 0.4);
+    opacity: 1;
   }
 }
 

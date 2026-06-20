@@ -198,8 +198,8 @@ BEGIN
             track_countries[i],
             track_lengths[i],
             track_laps[i],
-            -- First race = tomorrow at 17:00 UTC, then every 2 days
-            (NOW()::date + 1 + ((i - 1) * 2))::TIMESTAMPTZ + INTERVAL '17 hours',
+            -- First race = tomorrow at 17:00 UTC, then daily
+            (NOW()::date + 1 + (i - 1))::TIMESTAMPTZ + INTERVAL '17 hours',
             CASE WHEN i = 1 THEN 'upcoming'::race_status ELSE 'upcoming'::race_status END
         );
     END LOOP;

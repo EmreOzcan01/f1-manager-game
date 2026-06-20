@@ -165,9 +165,9 @@ export default function DashboardClient({
               </div>
             </div>
           ) : (
-            <div className="card p-4 mb-4 relative overflow-hidden bg-gradient-to-br from-[#fbbf24]/10 to-[#ef4444]/5 border-[#fbbf24]/20 shadow-[0_4px_16px_rgba(251,191,36,0.04)]">
+            <div className="card p-4 mb-4 relative overflow-hidden bg-[var(--background-card)] border-[#fbbf24]/30 shadow-sm">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-medium px-2 py-0.5 rounded bg-[#fbbf24]/20 text-[#fbbf24] uppercase tracking-wider">
+                <span className="text-xs font-medium px-2 py-0.5 rounded bg-[#fbbf24]/10 text-[#fbbf24] uppercase tracking-wider">
                   Season Concluded
                 </span>
               </div>
@@ -179,7 +179,7 @@ export default function DashboardClient({
               </p>
               <button
                 onClick={() => router.push('/standings')}
-                className="btn-primary text-xs px-4 py-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] hover:from-[#f59e0b] hover:to-[#d97706] text-black border-transparent font-bold flex items-center gap-1 shadow-[0_2px_8px_rgba(245,158,11,0.25)]"
+                className="btn-primary text-xs px-4 py-2 bg-[#fbbf24] hover:bg-[#f59e0b] text-black border-transparent font-bold flex items-center gap-1 shadow-sm"
               >
                 Go to Standings & Payouts →
               </button>
@@ -317,7 +317,7 @@ export default function DashboardClient({
         <div className="space-y-4 animate-fade-in">
           {/* Payout & budget stats cards */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="card p-3.5 bg-gradient-to-br from-[#22c55e]/10 to-[#151522] border-[#22c55e]/20">
+            <div className="card p-3.5 bg-[var(--background-card)] border-emerald-500/20">
               <span className="text-[10px] text-[var(--foreground-muted)] uppercase tracking-wider block">Total Earnings</span>
               <span className="text-sm font-bold text-[#22c55e] font-racing">
                 {formatMoney(
@@ -327,7 +327,7 @@ export default function DashboardClient({
                 )}
               </span>
             </div>
-            <div className="card p-3.5 bg-gradient-to-br from-[#ef4444]/10 to-[#151522] border-[#ef4444]/20">
+            <div className="card p-3.5 bg-[var(--background-card)] border-red-500/20">
               <span className="text-[10px] text-[var(--foreground-muted)] uppercase tracking-wider block">Total Expenditures</span>
               <span className="text-sm font-bold text-[#ef4444] font-racing">
                 {formatMoney(
@@ -342,7 +342,7 @@ export default function DashboardClient({
           </div>
 
           {/* Budget Statement card */}
-          <div className="card p-4 bg-gradient-to-br from-[var(--background-card)] to-[#0c0c12] border-[var(--border-color)]">
+          <div className="card p-4 bg-[var(--background-elevated)] border-[var(--border-color)]">
             <span className="text-[10px] text-[var(--foreground-muted)] uppercase tracking-wider block mb-0.5">Available Balance</span>
             <span className="text-2xl font-black text-[var(--color-success)] font-racing block">
               {formatMoney(team.budget)}

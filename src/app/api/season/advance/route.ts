@@ -206,7 +206,7 @@ export async function POST(request: NextRequest) {
 
     const racesToInsert = CALENDAR_TRACKS.map((t, idx) => {
       const scheduledDate = new Date(baseDate);
-      scheduledDate.setDate(baseDate.getDate() + 1 + idx * 2);
+      scheduledDate.setDate(baseDate.getDate() + 1 + idx * 1);
 
       return {
         season_id: newSeason.id,

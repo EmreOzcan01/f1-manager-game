@@ -1,23 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Orbitron } from "next/font/google";
+import PWARegister from "@/components/common/PWARegister";
 import "./globals.css";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const orbitron = Orbitron({
-  subsets: ["latin"],
-  variable: "--font-orbitron",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "F1 Manager — Build Your Racing Empire",
   description: "Manage your own Formula 1 team. Develop your car, sign drivers, set race strategies, and compete for the championship in this browser-based management game.",
   keywords: ["F1", "Formula 1", "manager", "game", "racing", "strategy"],
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "F1 Manager",
+  },
 };
 
 export const viewport: Viewport = {
@@ -34,8 +27,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${orbitron.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en" className="h-full antialiased">
+      <body className="min-h-full flex flex-col">
+        <PWARegister />
+        {children}
+      </body>
     </html>
   );
 }
+
