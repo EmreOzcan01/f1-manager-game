@@ -479,6 +479,60 @@ export async function GET(request: NextRequest) {
     }
 
     // ──────────────────────────────────────
+    // 9.5. AI Team Progression
+    // ──────────────────────────────────────
+    // Calculate player max levels per category to keep AI close but slightly behind
+    const playerMaxLevels: Record<string, number> = {};
+    for (const part of carParts || []) {
+      const team = teams?.find((t) => t.id === part.team_id);
+      if (team && !team.is_ai) {
+        playerMaxLevels[part.category] = Math.max(playerMaxLevels[part.category] || 1, part.level);
+      }
+    }
+
+    const aiPartUpdates = [];
+    for (const part of carParts || []) {
+      const team = teams?.find((t) => t.id === part.team_id);
+      if (team && team.is_ai) {
+        const pMax = playerMaxLevels[part.category] || 1;
+        let shouldUpgrade = false;
+        
+        // AI develops to stay close to player, but slightly worse
+        if (part.level < pMax - 2) {
+           shouldUpgrade = Math.random() < 0.6; // Catchup if very far behind
+        } else if (part.level < pMax - 1) {
+           shouldUpgrade = Math.random() < 0.3; // Slower catchup
+        } else if (part.level === pMax - 1) {
+           shouldUpgrade = Math.random() < 0.1; // Very rare to match player
+        }
+
+        if (shouldUpgrade && part.level < 20) {
+          const perfBoost = 3 + Math.floor(Math.random() * 4);
+          const relBoost = 2 + Math.floor(Math.random() * 4);
+          
+          aiPartUpdates.push({
+            id: part.id,
+            level: part.level + 1,
+            performance: Math.min(100, Number(part.performance) + perfBoost),
+            reliability: Math.min(100, Number(part.reliability) + relBoost),
+          });
+        }
+      }
+    }
+
+    for (const update of aiPartUpdates) {
+      const { error: aiUpdErr } = await supabase
+        .from('car_parts')
+        .update({ 
+          level: update.level, 
+          performance: update.performance,
+          reliability: update.reliability
+        })
+        .eq('id', update.id);
+      if (aiUpdErr) console.error(`[AI UPGRADE ERROR] part ${update.id}`, aiUpdErr);
+    }
+
+    // ──────────────────────────────────────
     // 10. Update Race status to completed
     // ──────────────────────────────────────
     const { error: raceStatusError } = await supabase
