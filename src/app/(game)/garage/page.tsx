@@ -1,11 +1,38 @@
-export default function GaragePage() {
+import { createClient, createServiceClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
+import { checkAndCompleteUpgrades } from '@/lib/engine/garage-resolver';
+import GarageClient from './GarageClient';
+
+export default async function GaragePage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) redirect('/login');
+
+  // Fetch user's team
+  const { data: team } = await supabase
+    .from('teams')
+    .select('*')
+    .eq('owner_id', user.id)
+    .single();
+
+  if (!team) redirect('/dashboard');
+
+  // Lazy-resolve completed upgrades using admin client (bypasses RLS limits)
+  const adminSupabase = createServiceClient();
+  await checkAndCompleteUpgrades(adminSupabase, team.id);
+
+  // Fetch latest car parts
+  const { data: parts } = await supabase
+    .from('car_parts')
+    .select('*')
+    .eq('team_id', team.id)
+    .order('category', { ascending: true });
+
   return (
-    <div className="px-4 pt-4">
-      <h1 className="font-racing text-xl font-bold text-gradient mb-4">GARAGE</h1>
-      <div className="card p-8 text-center">
-        <p className="text-3xl mb-2">🔧</p>
-        <p className="text-sm text-[var(--foreground-muted)]">Garage module coming in Phase 4</p>
-      </div>
-    </div>
+    <GarageClient
+      team={team}
+      initialParts={parts || []}
+    />
   );
 }
