@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { formatMoney, getFlag } from '@/lib/utils/helpers';
+import { useTranslation } from '@/lib/i18n/context';
 
 interface StandingsClientProps {
   activeSeason: {
@@ -37,6 +38,7 @@ export default function StandingsClient({
   playerTeamId,
 }: StandingsClientProps) {
   const router = useRouter();
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'constructors' | 'drivers'>('constructors');
   const [isAdvancing, setIsAdvancing] = useState(false);
   const [advancingError, setAdvancingError] = useState<string | null>(null);
@@ -79,10 +81,10 @@ export default function StandingsClient({
       {/* Header */}
       <div className="mb-5">
         <p className="text-xs text-[var(--foreground-muted)] uppercase tracking-wider">
-          Championship Rankings
+          {t('success') === 'Başarılı' ? 'Şampiyona Sıralaması' : 'Championship Rankings'}
         </p>
         <h1 className="text-xl font-bold font-racing text-gradient uppercase">
-          Season {activeSeason.number} Standings
+          {t('success') === 'Başarılı' ? `Sezon ${activeSeason.number} Puan Durumu` : `Season ${activeSeason.number} Standings`}
         </h1>
       </div>
 
@@ -99,14 +101,19 @@ export default function StandingsClient({
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 relative z-10">
             <div className="space-y-1.5 max-w-xl">
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#fbbf24]/20 text-[#fbbf24] text-[10px] font-bold tracking-wider uppercase">
-                👑 Campaign Concluded
+                👑 {t('success') === 'Başarılı' ? 'Sezon Tamamlandı' : 'Campaign Concluded'}
               </div>
               <h2 className="text-lg font-bold font-racing text-white flex items-center gap-2">
-                <span>🏆</span> Final Classification: {playerStandingPosition === 1 ? '1st (Champions!)' : `${playerStandingPosition}th Place`}
+                <span>🏆</span> {t('success') === 'Başarılı' 
+                  ? (playerStandingPosition === 1 ? 'Nihai Sıralama: 1. (Şampiyon!)' : `Nihai Sıralama: ${playerStandingPosition}. Sıra`)
+                  : (playerStandingPosition === 1 ? 'Final Classification: 1st (Champions!)' : `Final Classification: ${playerStandingPosition}th Place`)
+                }
               </h2>
               <p className="text-xs text-[var(--foreground-muted)] leading-relaxed">
-                Congratulations on completing Season {activeSeason.number}! Your team secured {teamStandings[playerStandingIdx]?.total_points || 0} points. 
-                You are awarded a seasonal constructor prize money bonus of{' '}
+                {t('success') === 'Başarılı' 
+                  ? `Sezon ${activeSeason.number}'i tamamladığınız için tebrikler! Takımınız toplamda ${teamStandings[playerStandingIdx]?.total_points || 0} puan topladı. Markalar sıralamasına göre kazandığınız sezonluk ödül bonusu: `
+                  : `Congratulations on completing Season ${activeSeason.number}! Your team secured ${teamStandings[playerStandingIdx]?.total_points || 0} points. You are awarded a seasonal constructor prize money bonus of `
+                }
                 <span className="font-bold text-[var(--color-success)]">{formatMoney(playerPayout)}</span>.
               </p>
               {advancingError && (
@@ -125,11 +132,11 @@ export default function StandingsClient({
               {isAdvancing ? (
                 <>
                   <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                  <span>Advancing...</span>
+                  <span>{t('success') === 'Başarılı' ? 'İlerletiliyor...' : 'Advancing...'}</span>
                 </>
               ) : (
                 <>
-                  <span>Advance to Season {activeSeason.number + 1}</span>
+                  <span>{t('success') === 'Başarılı' ? `Sezon ${activeSeason.number + 1}'e İlerle` : `Advance to Season ${activeSeason.number + 1}`}</span>
                   <span className="text-sm">→</span>
                 </>
               )}
@@ -149,7 +156,7 @@ export default function StandingsClient({
           }`}
           id="btn-tab-constructors"
         >
-          Constructors (Teams)
+          {t('success') === 'Başarılı' ? 'Takımlar (Markalar)' : 'Constructors (Teams)'}
         </button>
         <button
           onClick={() => setActiveTab('drivers')}
@@ -160,7 +167,7 @@ export default function StandingsClient({
           }`}
           id="btn-tab-drivers"
         >
-          Drivers
+          {t('success') === 'Başarılı' ? 'Pilotlar' : 'Drivers'}
         </button>
       </div>
 
@@ -170,11 +177,11 @@ export default function StandingsClient({
           <div className="space-y-1">
             {/* Constructor table header */}
             <div className="flex items-center text-[10px] uppercase font-bold text-[var(--foreground-muted)] px-3 py-2 border-b border-[var(--border-color)]">
-              <span className="w-8 text-center">Pos</span>
-              <span className="flex-1 ml-4">Team</span>
-              <span className="w-16 text-center">Wins</span>
-              <span className="w-16 text-center">Podiums</span>
-              <span className="w-16 text-right pr-2">Points</span>
+              <span className="w-8 text-center">{t('success') === 'Başarılı' ? 'Sıra' : 'Pos'}</span>
+              <span className="flex-1 ml-4">{t('success') === 'Başarılı' ? 'Takım' : 'Team'}</span>
+              <span className="w-16 text-center">{t('success') === 'Başarılı' ? 'Galibiyet' : 'Wins'}</span>
+              <span className="w-16 text-center">{t('success') === 'Başarılı' ? 'Podyum' : 'Podiums'}</span>
+              <span className="w-16 text-right pr-2">{t('success') === 'Başarılı' ? 'Puan' : 'Points'}</span>
             </div>
 
             {/* Constructor standings rows */}
@@ -220,7 +227,7 @@ export default function StandingsClient({
                       </span>
                       {isPlayer && (
                         <span className="text-[9px] font-bold text-[var(--accent-primary)] bg-[var(--accent-primary)]/10 px-1 rounded-sm">
-                          MY TEAM
+                          {t('success') === 'Başarılı' ? 'TAKIMIM' : 'MY TEAM'}
                         </span>
                       )}
                     </div>
@@ -248,17 +255,17 @@ export default function StandingsClient({
           <div className="space-y-1">
             {/* Drivers table header */}
             <div className="flex items-center text-[10px] uppercase font-bold text-[var(--foreground-muted)] px-3 py-2 border-b border-[var(--border-color)]">
-              <span className="w-8 text-center">Pos</span>
-              <span className="flex-1 ml-4">Driver / Team</span>
-              <span className="w-16 text-center">Wins</span>
-              <span className="w-16 text-center">Podiums</span>
-              <span className="w-16 text-right pr-2">Points</span>
+              <span className="w-8 text-center">{t('success') === 'Başarılı' ? 'Sıra' : 'Pos'}</span>
+              <span className="flex-1 ml-4">{t('success') === 'Başarılı' ? 'Pilot / Takım' : 'Driver / Team'}</span>
+              <span className="w-16 text-center">{t('success') === 'Başarılı' ? 'Galibiyet' : 'Wins'}</span>
+              <span className="w-16 text-center">{t('success') === 'Başarılı' ? 'Podyum' : 'Podiums'}</span>
+              <span className="w-16 text-right pr-2">{t('success') === 'Başarılı' ? 'Puan' : 'Points'}</span>
             </div>
 
             {/* Drivers standings rows */}
             {driverStandings.length === 0 ? (
               <div className="text-center py-12 text-xs text-[var(--foreground-muted)]">
-                No race results recorded for this season yet.
+                {t('success') === 'Başarılı' ? 'Bu sezon için henüz yarış sonucu kaydedilmedi.' : 'No race results recorded for this season yet.'}
               </div>
             ) : (
               driverStandings.map((item: any, idx: number) => {
@@ -304,7 +311,7 @@ export default function StandingsClient({
                         </span>
                         {isPlayerDriver && (
                           <span className="text-[9px] font-bold text-[var(--accent-primary)] bg-[var(--accent-primary)]/10 px-1 rounded-sm">
-                            MY DRIVER
+                            {t('success') === 'Başarılı' ? 'PİLOTUM' : 'MY DRIVER'}
                           </span>
                         )}
                       </div>

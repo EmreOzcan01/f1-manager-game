@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { formatMoney } from '@/lib/utils/helpers';
+import { useTranslation } from '@/lib/i18n/context';
 import type { Team, CarPart, PartCategory } from '@/types/database';
+import { TranslationKey } from '@/lib/i18n/translations';
 
 interface GarageClientProps {
   team: Team;
@@ -23,6 +25,7 @@ export default function GarageClient({
   const [upgradingPart, setUpgradingPart] = useState<CarPart | null>(null);
 
   const router = useRouter();
+  const { t } = useTranslation();
 
   // Sync state with props
   useEffect(() => {
@@ -50,7 +53,10 @@ export default function GarageClient({
         throw new Error(data.error || 'Failed to start upgrade');
       }
 
-      setSuccess(`Started research on ${part.category.toUpperCase()} upgrade!`);
+      setSuccess(t('success') === 'Başarılı' 
+        ? `${t(`part_${part.category}` as any)} geliştirmesi başlatıldı!`
+        : `Started research on ${part.category.toUpperCase()} upgrade!`
+      );
       router.refresh();
     } catch (err: any) {
       setError(err.message || 'An error occurred.');
@@ -60,16 +66,8 @@ export default function GarageClient({
   };
 
   const getPartName = (cat: PartCategory) => {
-    const names: Record<PartCategory, string> = {
-      engine: 'Power Unit (Engine)',
-      aero: 'Aerodynamics (Aero)',
-      chassis: 'Chassis Frame',
-      gearbox: 'Gearbox / Transmission',
-      suspension: 'Suspension System',
-      brakes: 'Braking System',
-      cooling: 'Cooling Unit',
-    };
-    return names[cat];
+    const key = `part_${cat}` as TranslationKey;
+    return t(key);
   };
 
   return (
@@ -78,14 +76,14 @@ export default function GarageClient({
       <div className="flex items-center justify-between mb-4">
         <div>
           <p className="text-xs text-[var(--foreground-muted)] uppercase tracking-wider">
-            Development
+            {t('garage_subtitle')}
           </p>
           <h1 className="text-xl font-bold font-racing text-gradient">
-            GARAGE
+            {t('garage_title')}
           </h1>
         </div>
         <div className="px-3 py-1.5 rounded-xl bg-[var(--background-elevated)] border border-[var(--border-color)] text-right">
-          <p className="text-[10px] text-[var(--foreground-muted)] uppercase">Budget</p>
+          <p className="text-[10px] text-[var(--foreground-muted)] uppercase">{t('budget')}</p>
           <p className="text-sm font-bold text-[var(--color-success)]">
             {formatMoney(team.budget)}
           </p>
@@ -96,7 +94,7 @@ export default function GarageClient({
       <div className="card p-3 mb-5 grid grid-cols-2 gap-4 divide-x divide-[var(--border-color)]">
         <div className="text-center">
           <p className="text-[10px] text-[var(--foreground-muted)] uppercase tracking-wider mb-1">
-            Avg Performance
+            {t('garage_avg_perf')}
           </p>
           <p className="font-racing text-lg font-bold text-[var(--accent-primary)]">
             {Math.round(parts.reduce((sum, p) => sum + p.performance, 0) / parts.length)}
@@ -105,7 +103,7 @@ export default function GarageClient({
         </div>
         <div className="text-center">
           <p className="text-[10px] text-[var(--foreground-muted)] uppercase tracking-wider mb-1">
-            Avg Reliability
+            {t('garage_avg_rel')}
           </p>
           <p className="font-racing text-lg font-bold text-[var(--accent-secondary)]">
             {Math.round(parts.reduce((sum, p) => sum + p.reliability, 0) / parts.length)}
@@ -135,7 +133,7 @@ export default function GarageClient({
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[var(--accent-primary)]"></span>
             </span>
             <span className="text-xs font-semibold text-[var(--foreground-secondary)]">
-              Researching {activeUpgrade.category.toUpperCase()} upgrade
+              {t('garage_research_ongoing_label', { category: getPartName(activeUpgrade.category) })}
             </span>
           </div>
           <CountdownTimer part={activeUpgrade} onComplete={() => router.refresh()} />
@@ -164,14 +162,14 @@ export default function GarageClient({
                       {getPartName(part.category)}
                     </h3>
                     <p className="text-[10px] text-[var(--foreground-muted)] uppercase tracking-wider font-racing font-bold">
-                      Level {part.level}
+                      {t('level')} {part.level}
                     </p>
                   </div>
                 </div>
 
                 <div className="text-right">
                   <span className="text-[10px] text-[var(--foreground-muted)] uppercase tracking-wider block">
-                    Wear
+                    {t('wear')}
                   </span>
                   <span className={`text-xs font-bold font-racing ${
                     part.wear > 50 ? 'text-[var(--color-danger)]' :
@@ -188,7 +186,7 @@ export default function GarageClient({
                 {/* Performance */}
                 <div>
                   <div className="flex justify-between text-[11px] mb-0.5">
-                    <span className="text-[var(--foreground-muted)]">Performance</span>
+                    <span className="text-[var(--foreground-muted)]">{t('performance')}</span>
                     <span className="font-bold text-[var(--foreground-secondary)] font-racing">{part.performance}</span>
                   </div>
                   <div className="stat-bar">
@@ -206,7 +204,7 @@ export default function GarageClient({
                 {/* Reliability */}
                 <div>
                   <div className="flex justify-between text-[11px] mb-0.5">
-                    <span className="text-[var(--foreground-muted)]">Reliability</span>
+                    <span className="text-[var(--foreground-muted)]">{t('reliability')}</span>
                     <span className="font-bold text-[var(--foreground-secondary)] font-racing">{part.reliability}</span>
                   </div>
                   <div className="stat-bar">
@@ -231,14 +229,14 @@ export default function GarageClient({
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                       </svg>
-                      Research ongoing...
+                      {t('garage_research_ongoing')}
                     </span>
                     <CountdownTimer part={part} onComplete={() => router.refresh()} />
                   </div>
                 ) : (
                   <>
                     <span className="text-[10px] text-[var(--foreground-muted)]">
-                      Next: Level {part.level + 1} ({Math.round(part.level * 1.5)}m duration)
+                      {t('garage_next_upgrade_desc', { nextLevel: part.level + 1, duration: Math.round(part.level * 1.5) })}
                     </span>
                     <button
                       disabled={loading !== null || !!activeUpgrade || !canAfford}
@@ -250,7 +248,7 @@ export default function GarageClient({
                         'bg-white/5 text-[var(--foreground-muted)] cursor-not-allowed'
                       }`}
                     >
-                      {activeUpgrade ? 'Queue Busy' : `Upgrade (${formatMoney(cost)})`}
+                      {activeUpgrade ? t('garage_queue_busy') : `${t('garage_upgrade')} (${formatMoney(cost)})`}
                     </button>
                   </>
                 )}
@@ -265,21 +263,23 @@ export default function GarageClient({
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
           <div className="card w-full max-w-sm p-5 border border-[var(--border-color-hover)] bg-[var(--background-card)] shadow-2xl">
             <h3 className="font-racing text-lg font-bold mb-3 text-gradient uppercase">
-              Upgrade Component
+              {t('garage_confirm_upgrade_title')}
             </h3>
             
             <p className="text-xs text-[var(--foreground-secondary)] leading-relaxed mb-4">
-              Do you want to start researching upgrade for <span className="font-bold text-white">{getPartName(upgradingPart.category)}</span> to <span className="font-bold text-[var(--accent-primary)]">Level {upgradingPart.level + 1}</span>?
+              {t('garage_confirm_upgrade_desc', { partName: getPartName(upgradingPart.category), nextLevel: upgradingPart.level + 1 })}
             </p>
 
             <div className="space-y-2 mb-5 text-xs text-[var(--foreground-secondary)] bg-[var(--background)] border border-[var(--border-color)] p-3 rounded-xl">
               <div className="flex justify-between">
-                <span>Research Cost:</span>
+                <span>{t('garage_research_cost')}</span>
                 <span className="font-bold text-white">{formatMoney(upgradingPart.level * 1_200_000)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Time Required:</span>
-                <span className="font-bold text-white">{Math.round(upgradingPart.level * 1.5)} minutes</span>
+                <span>{t('garage_time_required')}</span>
+                <span className="font-bold text-white">
+                  {Math.round(upgradingPart.level * 1.5)} {t('success') === 'Başarılı' ? 'dakika' : 'minutes'}
+                </span>
               </div>
             </div>
 
@@ -289,14 +289,14 @@ export default function GarageClient({
                 onClick={() => setUpgradingPart(null)}
                 className="flex-1 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold cursor-pointer transition-all text-center"
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 disabled={loading !== null}
                 onClick={() => handleUpgrade(upgradingPart)}
                 className="flex-1 py-2.5 rounded-xl bg-[var(--accent-primary)] text-white hover:bg-[var(--accent-primary-hover)] text-xs font-semibold cursor-pointer transition-all text-center"
               >
-                {loading ? 'Upgrading...' : 'Confirm Upgrade'}
+                {loading ? t('garage_upgrading') : t('garage_confirm_button')}
               </button>
             </div>
           </div>

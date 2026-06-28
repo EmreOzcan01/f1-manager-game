@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import { TURKEY_CITIES } from '@/lib/i18n/turkey-data';
+import { translations } from '@/lib/i18n/translations';
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -11,13 +13,49 @@ export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  
+  // Location and localization states
+  const [country, setCountry] = useState('US');
+  const [city, setCity] = useState('');
+  const [district, setDistrict] = useState('');
+  const [selectedCityData, setSelectedCityData] = useState<typeof TURKEY_CITIES[0] | null>(null);
+  
   const router = useRouter();
   const supabase = createClient();
+
+  useEffect(() => {
+    // Detect country from cookies
+    const countryCookie = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('USER_COUNTRY='))
+      ?.split('=')[1];
+    if (countryCookie) {
+      setCountry(countryCookie);
+    }
+  }, []);
+
+  const handleCityChange = (cityName: string) => {
+    setCity(cityName);
+    const cityData = TURKEY_CITIES.find(c => c.name === cityName) || null;
+    setSelectedCityData(cityData);
+    setDistrict('');
+  };
+
+  const tDict = country === 'TR' ? translations.tr : translations.en;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
+
+    // Form validation for location info if country is TR and registering
+    if (!isLogin && country === 'TR') {
+      if (!city || !district) {
+        setError(country === 'TR' ? 'Lütfen şehir ve ilçe seçin.' : 'Please select city and district.');
+        setLoading(false);
+        return;
+      }
+    }
 
     try {
       if (isLogin) {
@@ -36,6 +74,22 @@ export default function LoginPage() {
         });
         if (error) throw error;
       }
+
+      // Automatically determine user locale based on country
+      const userLocale = country === 'TR' ? 'tr' : 'en';
+
+      // Save user location details (country, city, district) and locale via API
+      await fetch('/api/profile/location', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          country,
+          city: country === 'TR' ? city : null,
+          district: country === 'TR' ? district : null,
+          locale: userLocale,
+        }),
+      });
+
       router.push('/dashboard');
       router.refresh();
     } catch (err: unknown) {
@@ -75,10 +129,10 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center mb-10">
           <h1 className="font-racing text-4xl font-bold tracking-wider text-gradient mb-2">
-            F1 MANAGER
+            {tDict.login_title}
           </h1>
           <p className="text-sm text-[var(--foreground-muted)] tracking-wide">
-            Build your racing empire
+            {tDict.login_subtitle}
           </p>
         </div>
 
@@ -95,7 +149,7 @@ export default function LoginPage() {
               }`}
               id="tab-login"
             >
-              Sign In
+              {tDict.login_signin}
             </button>
             <button
               onClick={() => { setIsLogin(false); setError(null); }}
@@ -106,7 +160,7 @@ export default function LoginPage() {
               }`}
               id="tab-register"
             >
-              Sign Up
+              {tDict.login_signup}
             </button>
           </div>
 
@@ -115,7 +169,7 @@ export default function LoginPage() {
             {!isLogin && (
               <div>
                 <label className="block text-xs font-medium text-[var(--foreground-secondary)] mb-1.5 uppercase tracking-wider">
-                  Team Manager Name
+                  {tDict.login_manager_name}
                 </label>
                 <input
                   type="text"
@@ -130,7 +184,7 @@ export default function LoginPage() {
 
             <div>
               <label className="block text-xs font-medium text-[var(--foreground-secondary)] mb-1.5 uppercase tracking-wider">
-                Email
+                {tDict.login_email}
               </label>
               <input
                 type="email"
@@ -145,7 +199,7 @@ export default function LoginPage() {
 
             <div>
               <label className="block text-xs font-medium text-[var(--foreground-secondary)] mb-1.5 uppercase tracking-wider">
-                Password
+                {tDict.login_password}
               </label>
               <input
                 type="password"
@@ -158,6 +212,56 @@ export default function LoginPage() {
                 id="input-password"
               />
             </div>
+
+            {/* Location selector fields for Turkish users on Register tab */}
+            {!isLogin && country === 'TR' && (
+              <div className="space-y-3 pt-2 border-t border-[var(--border-color)]">
+                <p className="text-xs font-semibold text-[var(--foreground-muted)] uppercase tracking-wider">
+                  {tDict.login_location_info}
+                </p>
+                <div>
+                  <label className="block text-[10px] font-medium text-[var(--foreground-secondary)] mb-1 uppercase tracking-wider">
+                    {tDict.login_select_city}
+                  </label>
+                  <select
+                    value={city}
+                    onChange={(e) => handleCityChange(e.target.value)}
+                    required
+                    className="w-full px-3 py-2.5 rounded-xl bg-[var(--background)] border border-[var(--border-color)] text-[var(--foreground)] focus:outline-none focus:border-[var(--accent-primary)] text-sm"
+                    id="select-city"
+                  >
+                    <option value="">-- {tDict.login_select_city} --</option>
+                    {TURKEY_CITIES.map((c) => (
+                      <option key={c.name} value={c.name}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {city && selectedCityData && (
+                  <div>
+                    <label className="block text-[10px] font-medium text-[var(--foreground-secondary)] mb-1 uppercase tracking-wider">
+                      {tDict.login_select_district}
+                    </label>
+                    <select
+                      value={district}
+                      onChange={(e) => setDistrict(e.target.value)}
+                      required
+                      className="w-full px-3 py-2.5 rounded-xl bg-[var(--background)] border border-[var(--border-color)] text-[var(--foreground)] focus:outline-none focus:border-[var(--accent-primary)] text-sm"
+                      id="select-district"
+                    >
+                      <option value="">-- {tDict.login_select_district} --</option>
+                      {selectedCityData.districts.map((d) => (
+                        <option key={d} value={d}>
+                          {d}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
+            )}
 
             {error && (
               <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
@@ -177,12 +281,12 @@ export default function LoginPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
-                  Processing...
+                  {tDict.login_processing}
                 </span>
               ) : isLogin ? (
-                'Enter the Paddock'
+                tDict.login_enter_paddock
               ) : (
-                'Create Team'
+                tDict.login_create_team
               )}
             </button>
           </form>

@@ -2,18 +2,28 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslation } from '@/lib/i18n/context';
+import { TranslationKey } from '@/lib/i18n/translations';
 
-const NAV_ITEMS = [
-  { id: 'dashboard', label: 'Home', icon: HomeIcon, href: '/dashboard' },
-  { id: 'garage', label: 'Garage', icon: GarageIcon, href: '/garage' },
-  { id: 'drivers', label: 'Drivers', icon: DriversIcon, href: '/drivers' },
-  { id: 'strategy', label: 'Strategy', icon: StrategyIcon, href: '/strategy' },
-  { id: 'race', label: 'Race', icon: RaceIcon, href: '/race' },
-  { id: 'standings', label: 'Standings', icon: StandingsIcon, href: '/standings' },
+interface NavItem {
+  id: string;
+  labelKey: TranslationKey;
+  icon: React.ComponentType<{ active: boolean }>;
+  href: string;
+}
+
+const NAV_ITEMS: NavItem[] = [
+  { id: 'dashboard', labelKey: 'nav_home', icon: HomeIcon, href: '/dashboard' },
+  { id: 'garage', labelKey: 'nav_garage', icon: GarageIcon, href: '/garage' },
+  { id: 'drivers', labelKey: 'nav_drivers', icon: DriversIcon, href: '/drivers' },
+  { id: 'strategy', labelKey: 'nav_strategy', icon: StrategyIcon, href: '/strategy' },
+  { id: 'race', labelKey: 'nav_race', icon: RaceIcon, href: '/race' },
+  { id: 'standings', labelKey: 'nav_standings', icon: StandingsIcon, href: '/standings' },
 ];
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const { t } = useTranslation();
 
   return (
     <nav className="bottom-nav" id="bottom-navigation">
@@ -29,7 +39,7 @@ export default function BottomNav() {
               id={`nav-${item.id}`}
             >
               <Icon active={isActive} />
-              <span className="nav-label">{item.label}</span>
+              <span className="nav-label">{t(item.labelKey)}</span>
             </Link>
           );
         })}

@@ -5,6 +5,7 @@ import { useRaceStore } from '@/stores/useRaceStore';
 import RaceCanvas from '@/components/game/RaceCanvas';
 import TelemetryPanel from '@/components/game/TelemetryPanel';
 import { getFlag, formatLapTime } from '@/lib/utils/helpers';
+import { useTranslation } from '@/lib/i18n/context';
 import type { SimulationData } from '@/types/database';
 
 interface RaceClientProps {
@@ -27,6 +28,7 @@ export default function RaceClient({
   playerTeamId,
   baseLapTime,
 }: RaceClientProps) {
+  const { t } = useTranslation();
   const {
     loadRace,
     currentFrame,
@@ -87,7 +89,7 @@ export default function RaceClient({
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-[var(--accent-primary)] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-sm text-[var(--foreground-muted)] font-medium">
-            Initializing telemetry feed...
+            {t('loading')}
           </p>
         </div>
       </div>
@@ -109,10 +111,10 @@ export default function RaceClient({
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-[var(--color-success)]/10 text-[var(--color-success)] uppercase tracking-wider">
-              {race.weather_condition ? 'Replay Feed' : 'Simulating Live'}
+              {race.weather_condition ? (t('success') === 'Başarılı' ? 'Tekrar İzleme' : 'Replay Feed') : (t('success') === 'Başarılı' ? 'Canlı Simülasyon' : 'Simulating Live')}
             </span>
             <span className="text-xs text-[var(--foreground-muted)] font-medium">
-              Lap {currentFrame + 1} of {totalFrames}
+              {t('race_lap')} {currentFrame + 1} / {totalFrames}
             </span>
           </div>
           <h1 className="text-xl font-bold flex items-center gap-2">
@@ -126,11 +128,14 @@ export default function RaceClient({
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[var(--background-card)] border border-[var(--border-color)]">
             <span className="text-sm">{getWeatherIcon(race.weather_condition)}</span>
             <span className="text-xs font-semibold text-[var(--foreground-secondary)] capitalize">
-              {race.weather_condition || 'Dry'}
+              {race.weather_condition === 'dry' ? t('race_weather_dry') :
+               race.weather_condition === 'light_rain' ? t('race_weather_light_rain') :
+               race.weather_condition === 'heavy_rain' ? t('race_weather_heavy_rain') :
+               (race.weather_condition || t('race_weather_dry'))}
             </span>
           </div>
           <div className="px-3 py-1.5 rounded-xl bg-[var(--background-card)] border border-[var(--border-color)]">
-            <p className="text-[10px] text-[var(--foreground-muted)] uppercase font-semibold">Temp</p>
+            <p className="text-[10px] text-[var(--foreground-muted)] uppercase font-semibold">{t('race_temp')}</p>
             <p className="text-xs font-bold font-racing text-[var(--foreground)]">
               {race.temperature || 26}°C
             </p>
@@ -160,7 +165,7 @@ export default function RaceClient({
             {/* Scrubber slider */}
             <div className="flex items-center gap-4">
               <span className="text-xs font-racing font-bold w-12 text-[var(--foreground-muted)]">
-                LAP {currentFrame + 1}
+                {t('race_lap').toUpperCase()} {currentFrame + 1}
               </span>
               <input
                 type="range"
@@ -172,7 +177,7 @@ export default function RaceClient({
                 id="race-scrub-slider"
               />
               <span className="text-xs font-racing font-bold w-12 text-right text-[var(--foreground-muted)]">
-                LAP {totalFrames}
+                {t('race_lap').toUpperCase()} {totalFrames}
               </span>
             </div>
 
@@ -225,7 +230,7 @@ export default function RaceClient({
                     onChange={(e) => setFocusedDriverId(e.target.value || null)}
                     className="px-3 py-2 rounded-xl bg-[var(--background)] border border-[var(--border-color)] text-xs font-medium text-[var(--foreground)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors"
                   >
-                    <option value="">Select Driver...</option>
+                    <option value="">{t('success') === 'Başarılı' ? 'Pilot Seçin...' : 'Select Driver...'}</option>
                     {activeFrame.positions
                       .filter(p => p.status !== 'dnf')
                       .map(p => (
@@ -243,7 +248,7 @@ export default function RaceClient({
                   <span className="text-sm">💜</span>
                   <div className="min-w-0">
                     <p className="text-[9px] text-[var(--foreground-muted)] uppercase font-semibold">
-                      Fastest Lap
+                      {t('race_fastest_lap')}
                     </p>
                     <p className="text-xs font-bold truncate text-[var(--foreground-secondary)]">
                       {fastestLapInfo.driverName}{' '}

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { isCurrentlyInDrsZone } from '@/lib/canvas/track-geometry';
+import { useTranslation } from '@/lib/i18n/context';
 import type { RaceFrame, FramePosition } from '@/types/database';
 
 interface TelemetryPanelProps {
@@ -26,11 +27,12 @@ export default function TelemetryPanel({
   baseLapTime,
 }: TelemetryPanelProps) {
   const [activeTab, setActiveTab] = useState<'standings' | 'events'>('standings');
+  const { t } = useTranslation();
 
   if (!activeFrame) {
     return (
       <div className="card p-8 text-center text-[var(--foreground-muted)] text-sm">
-        No frame telemetry loaded.
+        {t('success') === 'Başarılı' ? 'Telemetri verisi yüklenmedi.' : 'No frame telemetry loaded.'}
       </div>
     );
   }
@@ -77,7 +79,7 @@ export default function TelemetryPanel({
               : 'border-transparent text-[var(--foreground-muted)] hover:text-[var(--foreground-secondary)]'
           }`}
         >
-          Standings
+          {t('nav_standings')}
         </button>
         <button
           onClick={() => setActiveTab('events')}
@@ -87,7 +89,7 @@ export default function TelemetryPanel({
               : 'border-transparent text-[var(--foreground-muted)] hover:text-[var(--foreground-secondary)]'
           }`}
         >
-          Lap Events
+          {t('success') === 'Başarılı' ? 'Tur Olayları' : 'Lap Events'}
           {activeFrame.events.length > 0 && (
             <span className="absolute top-2.5 right-6 w-2 h-2 rounded-full bg-[var(--accent-primary)] animate-pulse" />
           )}
@@ -100,11 +102,11 @@ export default function TelemetryPanel({
           <div className="space-y-1">
             {/* Header row */}
             <div className="flex items-center text-[10px] uppercase font-bold text-[var(--foreground-muted)] px-3 py-1.5 border-b border-[var(--border-color)]">
-              <span className="w-6 text-center">Pos</span>
-              <span className="flex-1 ml-4">Driver / Team</span>
-              <span className="w-12 text-center">Tyre</span>
-              <span className="w-14 text-center">Fuel</span>
-              <span className="w-20 text-right">Gap (Ldr/Int)</span>
+              <span className="w-6 text-center">{t('success') === 'Başarılı' ? 'Sıra' : 'Pos'}</span>
+              <span className="flex-1 ml-4">{t('success') === 'Başarılı' ? 'Pilot / Takım' : 'Driver / Team'}</span>
+              <span className="w-12 text-center">{t('success') === 'Başarılı' ? 'Lastik' : 'Tyre'}</span>
+              <span className="w-14 text-center">{t('success') === 'Başarılı' ? 'Yakıt' : 'Fuel'}</span>
+              <span className="w-20 text-right">{t('success') === 'Başarılı' ? 'Fark (Ldr/Int)' : 'Gap (Ldr/Int)'}</span>
             </div>
 
             {/* Standings List */}
@@ -184,7 +186,7 @@ export default function TelemetryPanel({
                       </span>
                       {isPlayer && (
                         <span className="text-[9px] font-bold text-[var(--accent-primary)] bg-[var(--accent-primary)]/10 px-1 rounded-sm">
-                          MY TEAM
+                          {t('success') === 'Başarılı' ? 'TAKIMIM' : 'MY TEAM'}
                         </span>
                       )}
                       {isPit && (
@@ -237,10 +239,14 @@ export default function TelemetryPanel({
                   {/* Dual Gap representation (Ldr/Int) */}
                   <div className="w-20 text-right flex-shrink-0 pr-1 flex flex-col justify-center">
                     {isDnf ? (
-                      <span className="text-[10px] text-[var(--color-danger)] font-medium">Retired</span>
+                      <span className="text-[10px] text-[var(--color-danger)] font-medium">
+                        {t('success') === 'Başarılı' ? 'Yarış Dışı' : 'Retired'}
+                      </span>
                     ) : car.gap_to_leader === 0 ? (
                       <>
-                        <span className="font-racing text-[10px] text-[#fbbf24] font-semibold">LEADER</span>
+                        <span className="font-racing text-[10px] text-[#fbbf24] font-semibold">
+                          {t('success') === 'Başarılı' ? 'LİDER' : 'LEADER'}
+                        </span>
                         <span className="text-[9px] text-[var(--foreground-muted)]">—</span>
                       </>
                     ) : car.gap_to_leader >= 999.0 ? (
@@ -265,7 +271,12 @@ export default function TelemetryPanel({
             {activeFrame.events.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center text-[var(--foreground-muted)]">
                 <span className="text-2xl mb-2">🏁</span>
-                <p className="text-xs">No major incidents or strategy moves on this lap.</p>
+                <p className="text-xs">
+                  {t('success') === 'Başarılı'
+                    ? 'Bu turda önemli bir olay veya strateji hamlesi gerçekleşmedi.'
+                    : 'No major incidents or strategy moves on this lap.'
+                  }
+                </p>
               </div>
             ) : (
               <div className="space-y-2">

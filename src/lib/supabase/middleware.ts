@@ -45,6 +45,27 @@ export async function updateSession(request: NextRequest) {
   const isPublicRoute =
     request.nextUrl.pathname === '/' || isAuthPage || isApiRoute;
 
+  // Capture country from Vercel headers (default to US if not present)
+  const country = request.headers.get('x-vercel-ip-country') || 'US';
+  
+  // Set country cookie so client components can read it
+  supabaseResponse.cookies.set('USER_COUNTRY', country, {
+    maxAge: 31536000,
+    path: '/',
+    sameSite: 'lax',
+  });
+
+  // If user has no language cookie, auto-detect from country header
+  const localeCookie = request.cookies.get('NEXT_LOCALE')?.value;
+  if (!localeCookie) {
+    const defaultLocale = country === 'TR' ? 'tr' : 'en';
+    supabaseResponse.cookies.set('NEXT_LOCALE', defaultLocale, {
+      maxAge: 31536000,
+      path: '/',
+      sameSite: 'lax',
+    });
+  }
+
   if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';

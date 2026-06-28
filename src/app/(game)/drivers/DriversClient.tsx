@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { formatMoney, getFlag } from '@/lib/utils/helpers';
+import { useTranslation } from '@/lib/i18n/context';
 import type { Team, Driver } from '@/types/database';
 import type { DriverWithContract } from '@/types/game';
 
@@ -32,6 +33,7 @@ export default function DriversClient({
   const [releasingDriver, setReleasingDriver] = useState<any | null>(null);
 
   const router = useRouter();
+  const { t } = useTranslation();
 
   // Map drivers to have overall rating
   const getOverallRating = (d: Driver) => {
@@ -88,7 +90,10 @@ export default function DriversClient({
         throw new Error(data.error || 'Failed to sign driver');
       }
 
-      setSuccess(`Successfully signed ${signingDriver.name} to Seat #${signingSeat}!`);
+      setSuccess(t('success') === 'Başarılı'
+        ? `${signingDriver.name} isimli pilot Koltuk #${signingSeat}'e başarıyla transfer edildi!`
+        : `Successfully signed ${signingDriver.name} to Seat #${signingSeat}!`
+      );
       setSigningDriver(null);
       router.refresh();
     } catch (err: any) {
@@ -118,7 +123,10 @@ export default function DriversClient({
         throw new Error(data.error || 'Failed to release driver');
       }
 
-      setSuccess(`Successfully released ${releasingDriver.drivers.name}.`);
+      setSuccess(t('success') === 'Başarılı'
+        ? `${releasingDriver.drivers.name} ile olan sözleşme başarıyla feshedildi.`
+        : `Successfully released ${releasingDriver.drivers.name}.`
+      );
       setReleasingDriver(null);
       router.refresh();
     } catch (err: any) {
@@ -129,10 +137,14 @@ export default function DriversClient({
   };
 
   const renderStatBar = (label: string, value: number) => {
+    // Map standard labels to translation keys (lowercased)
+    let key = label.toLowerCase();
+    if (key === 'overall rating') key = 'overall';
+    
     return (
       <div>
         <div className="flex justify-between text-xs mb-0.5">
-          <span className="text-[var(--foreground-muted)]">{label}</span>
+          <span className="text-[var(--foreground-muted)]">{t(key as any)}</span>
           <span className="font-racing font-bold text-[var(--foreground-secondary)]">{value}</span>
         </div>
         <div className="stat-bar">
@@ -155,14 +167,14 @@ export default function DriversClient({
       <div className="flex items-center justify-between mb-4">
         <div>
           <p className="text-xs text-[var(--foreground-muted)] uppercase tracking-wider">
-            Management
+            {t('drivers_subtitle')}
           </p>
           <h1 className="text-xl font-bold font-racing text-gradient">
-            DRIVERS
+            {t('drivers_title')}
           </h1>
         </div>
         <div className="px-3 py-1.5 rounded-xl bg-[var(--background-elevated)] border border-[var(--border-color)] text-right">
-          <p className="text-[10px] text-[var(--foreground-muted)] uppercase">Budget</p>
+          <p className="text-[10px] text-[var(--foreground-muted)] uppercase">{t('budget')}</p>
           <p className="text-sm font-bold text-[var(--color-success)]">
             {formatMoney(team.budget)}
           </p>
@@ -179,7 +191,7 @@ export default function DriversClient({
               : 'text-[var(--foreground-muted)] hover:text-[var(--foreground-secondary)]'
           }`}
         >
-          Your Roster
+          {t('drivers_roster')}
         </button>
         <button
           onClick={() => setActiveTab('market')}
@@ -189,7 +201,7 @@ export default function DriversClient({
               : 'text-[var(--foreground-muted)] hover:text-[var(--foreground-secondary)]'
           }`}
         >
-          Driver Market
+          {t('drivers_market')}
         </button>
       </div>
 
@@ -211,7 +223,7 @@ export default function DriversClient({
           {/* Seat 1 */}
           <div className="relative">
             <div className="absolute -top-2 left-4 px-2 py-0.5 rounded bg-[var(--accent-primary)] text-[9px] font-bold text-white uppercase tracking-wider z-10">
-              Seat #1
+              {t('drivers_seat')} #1
             </div>
             {seat1Driver ? (
               <DriverCard
@@ -228,7 +240,7 @@ export default function DriversClient({
           {/* Seat 2 */}
           <div className="relative pt-2">
             <div className="absolute top-0 left-4 px-2 py-0.5 rounded bg-[var(--accent-secondary)] text-[9px] font-bold text-white uppercase tracking-wider z-10">
-              Seat #2
+              {t('drivers_seat')} #2
             </div>
             {seat2Driver ? (
               <DriverCard
@@ -251,7 +263,7 @@ export default function DriversClient({
           <div className="flex gap-2 items-center">
             <input
               type="text"
-              placeholder="Search driver..."
+              placeholder={t('drivers_search_placeholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-1 px-3 py-2 rounded-xl bg-[var(--background-secondary)] border border-[var(--border-color)] text-xs text-[var(--foreground)] placeholder:text-[var(--foreground-muted)] focus:outline-none focus:border-[var(--accent-primary)] transition-colors"
@@ -261,10 +273,10 @@ export default function DriversClient({
               onChange={(e: any) => setSortBy(e.target.value)}
               className="px-3 py-2 rounded-xl bg-[var(--background-secondary)] border border-[var(--border-color)] text-xs text-[var(--foreground-secondary)] focus:outline-none"
             >
-              <option value="overall">Sort: Rating</option>
-              <option value="pace">Sort: Pace</option>
-              <option value="salary">Sort: Salary</option>
-              <option value="age">Sort: Age</option>
+              <option value="overall">{t('drivers_sort_by')}: {t('overall')}</option>
+              <option value="pace">{t('drivers_sort_by')}: {t('pace')}</option>
+              <option value="salary">{t('drivers_sort_by')}: {t('drivers_annual_salary')}</option>
+              <option value="age">{t('drivers_sort_by')}: {t('dash_age')}</option>
             </select>
           </div>
 
@@ -283,11 +295,11 @@ export default function DriversClient({
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
                           <p className="font-semibold text-sm truncate">{d.name}</p>
-                          <span className="text-[10px] text-[var(--foreground-muted)]">Age {d.age}</span>
+                          <span className="text-[10px] text-[var(--foreground-muted)]">{t('dash_age')} {d.age}</span>
                         </div>
                         <p className="text-[10px] text-[var(--foreground-muted)]">
-                          Pace: <span className="font-bold text-[var(--foreground-secondary)]">{d.pace}</span> • 
-                          Salary: <span className="text-[var(--color-success)]">{formatMoney(d.salary)}/yr</span>
+                          {t('pace')}: <span className="font-bold text-[var(--foreground-secondary)]">{d.pace}</span> • 
+                          {t('drivers_annual_salary')}: <span className="text-[var(--color-success)]">{formatMoney(d.salary)}</span>
                         </p>
                       </div>
                     </div>
@@ -298,7 +310,7 @@ export default function DriversClient({
                           {overall}
                         </span>
                         <span className="text-[9px] text-[var(--foreground-muted)] uppercase tracking-wider block">
-                          Rating
+                          {t('overall')}
                         </span>
                       </div>
                       <button
@@ -315,7 +327,7 @@ export default function DriversClient({
                             : 'bg-white/5 text-[var(--foreground-muted)] cursor-not-allowed'
                         }`}
                       >
-                        Sign ({formatMoney(d.contract_price)})
+                        {t('drivers_sign')} ({formatMoney(d.contract_price)})
                       </button>
                     </div>
                   </div>
@@ -324,7 +336,7 @@ export default function DriversClient({
             ) : (
               <div className="card p-8 text-center">
                 <p className="text-2xl mb-2">🔍</p>
-                <p className="text-xs text-[var(--foreground-muted)]">No free agent drivers found matching query.</p>
+                <p className="text-xs text-[var(--foreground-muted)]">{t('drivers_no_results')}</p>
               </div>
             )}
           </div>
@@ -336,7 +348,7 @@ export default function DriversClient({
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
           <div className="card w-full max-w-sm p-5 border border-[var(--border-color-hover)] bg-[var(--background-card)] shadow-2xl">
             <h3 className="font-racing text-lg font-bold mb-3 text-gradient uppercase">
-              Sign Driver Contract
+              {t('drivers_confirm_sign_title')}
             </h3>
 
             <div className="flex gap-3 items-center p-3 rounded-xl bg-[var(--background)] border border-[var(--border-color)] mb-4">
@@ -346,26 +358,28 @@ export default function DriversClient({
               <div>
                 <p className="font-bold text-sm">{signingDriver.name}</p>
                 <p className="text-xs text-[var(--foreground-muted)]">
-                  Overall Rating: <span className="font-racing font-bold text-[var(--accent-primary)]">{getOverallRating(signingDriver)}</span>
+                  {t('overall')}: <span className="font-racing font-bold text-[var(--accent-primary)]">{getOverallRating(signingDriver)}</span>
                 </p>
               </div>
             </div>
 
             <div className="space-y-3 mb-5 text-xs text-[var(--foreground-secondary)]">
               <div className="flex justify-between">
-                <span>Contract Price (Fee)</span>
+                <span>{t('drivers_contract_fee')}</span>
                 <span className="font-bold text-white">{formatMoney(signingDriver.contract_price)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Annual Salary</span>
-                <span className="font-bold text-[var(--color-success)]">{formatMoney(signingDriver.salary)} / season</span>
+                <span>{t('drivers_annual_salary')}</span>
+                <span className="font-bold text-[var(--color-success)]">
+                  {formatMoney(signingDriver.salary)} / {t('success') === 'Başarılı' ? 'sezon' : 'season'}
+                </span>
               </div>
               <hr className="border-[var(--border-color)]" />
               
               {/* Target Seat Selection */}
               <div>
                 <label className="block text-[10px] text-[var(--foreground-muted)] uppercase tracking-wider mb-1.5 font-semibold">
-                  Select Seat
+                  {t('drivers_seat')}
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
@@ -377,7 +391,7 @@ export default function DriversClient({
                         : 'border-[var(--border-color)] text-[var(--foreground-muted)] hover:text-white'
                     }`}
                   >
-                    Seat #1 {seat1Driver ? '(Replaces current)' : '(Empty)'}
+                    {t('drivers_seat')} #1 {seat1Driver ? `(${t('drivers_replaces_current')})` : `(${t('drivers_empty')})`}
                   </button>
                   <button
                     type="button"
@@ -388,7 +402,7 @@ export default function DriversClient({
                         : 'border-[var(--border-color)] text-[var(--foreground-muted)] hover:text-white'
                     }`}
                   >
-                    Seat #2 {seat2Driver ? '(Replaces current)' : '(Empty)'}
+                    {t('drivers_seat')} #2 {seat2Driver ? `(${t('drivers_replaces_current')})` : `(${t('drivers_empty')})`}
                   </button>
                 </div>
               </div>
@@ -401,14 +415,14 @@ export default function DriversClient({
                 onClick={() => setSigningDriver(null)}
                 className="flex-1 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold cursor-pointer transition-all text-center"
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 disabled={loading !== null}
                 onClick={handleSign}
                 className="flex-1 py-2.5 rounded-xl bg-[var(--accent-primary)] text-white hover:bg-[var(--accent-primary-hover)] text-xs font-semibold cursor-pointer transition-all text-center"
               >
-                {loading === 'signing' ? 'Signing...' : 'Sign Contract'}
+                {loading === 'signing' ? t('drivers_signing') : t('drivers_confirm_sign_btn')}
               </button>
             </div>
           </div>
@@ -420,12 +434,11 @@ export default function DriversClient({
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
           <div className="card w-full max-w-sm p-5 border border-red-500/20 bg-[var(--background-card)] shadow-2xl">
             <h3 className="font-racing text-lg font-bold mb-3 text-red-500 uppercase">
-              Release Driver
+              {t('drivers_confirm_release_title')}
             </h3>
             
             <p className="text-xs text-[var(--foreground-muted)] mb-4 leading-relaxed">
-              Are you sure you want to release <span className="font-bold text-white">{releasingDriver.drivers.name}</span> from Seat #{releasingDriver.seat_number}? 
-              This will immediately vacate the seat and make them a free agent.
+              {t('drivers_confirm_release_desc', { driverName: releasingDriver.drivers.name, seatNumber: releasingDriver.seat_number })}
             </p>
 
             {/* Actions */}
@@ -435,14 +448,14 @@ export default function DriversClient({
                 onClick={() => setReleasingDriver(null)}
                 className="flex-1 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold cursor-pointer transition-all text-center"
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 disabled={loading !== null}
                 onClick={handleRelease}
                 className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-semibold cursor-pointer transition-all text-center"
               >
-                {loading === 'releasing' ? 'Releasing...' : 'Confirm Release'}
+                {loading === 'releasing' ? t('drivers_releasing') : t('drivers_confirm_release_btn')}
               </button>
             </div>
           </div>
@@ -467,6 +480,7 @@ function DriverCard({
   const d = driverRecord.drivers;
   if (!d) return null;
   const overall = getOverallRating(d);
+  const { t } = useTranslation();
 
   return (
     <div className="card p-4 space-y-4 border border-[var(--border-color-hover)]">
@@ -479,7 +493,7 @@ function DriverCard({
           <div>
             <h2 className="text-base font-bold leading-tight">{d.name}</h2>
             <p className="text-xs text-[var(--foreground-muted)]">
-              {d.nationality} • Age {d.age}
+              {d.nationality} • {t('dash_age')} {d.age}
             </p>
           </div>
         </div>
@@ -489,7 +503,7 @@ function DriverCard({
             {overall}
           </span>
           <span className="text-[10px] text-[var(--foreground-muted)] uppercase tracking-wider block">
-            Overall
+            {t('overall')}
           </span>
         </div>
       </div>
@@ -497,12 +511,16 @@ function DriverCard({
       {/* Contract & Financial Info */}
       <div className="p-3 rounded-xl bg-[var(--background)] border border-[var(--border-color)] grid grid-cols-2 gap-4 text-xs">
         <div>
-          <span className="text-[10px] text-[var(--foreground-muted)] uppercase tracking-wider block">Salary</span>
-          <span className="font-semibold text-white">{formatMoney(d.salary)} / Season</span>
+          <span className="text-[10px] text-[var(--foreground-muted)] uppercase tracking-wider block">{t('drivers_annual_salary')}</span>
+          <span className="font-semibold text-white">
+            {formatMoney(d.salary)} / {t('success') === 'Başarılı' ? 'Sezon' : 'Season'}
+          </span>
         </div>
         <div>
-          <span className="text-[10px] text-[var(--foreground-muted)] uppercase tracking-wider block">Contract Ends</span>
-          <span className="font-semibold text-white">Season {driverRecord.contract_end_season}</span>
+          <span className="text-[10px] text-[var(--foreground-muted)] uppercase tracking-wider block">{t('drivers_confirm_release_title')}</span>
+          <span className="font-semibold text-white">
+            {t('drivers_contract_ends', { season: driverRecord.contract_end_season })}
+          </span>
         </div>
       </div>
 
@@ -522,7 +540,7 @@ function DriverCard({
           onClick={onRelease}
           className="px-4 py-2 rounded-xl border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors text-xs font-semibold cursor-pointer"
         >
-          Release Driver
+          {t('drivers_release')}
         </button>
       </div>
     </div>
@@ -537,6 +555,8 @@ function EmptySeatCard({
   seatNumber: 1 | 2;
   onClick: () => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <button
       onClick={onClick}
@@ -546,10 +566,10 @@ function EmptySeatCard({
         +
       </div>
       <p className="text-sm font-semibold text-[var(--foreground-secondary)] group-hover:text-white transition-colors">
-        Assign Driver to Seat #{seatNumber}
+        {t('drivers_assign_seat', { seatNumber })}
       </p>
       <p className="text-xs text-[var(--foreground-muted)]">
-        Click to browse drivers in the transfer market
+        {t('drivers_browse_desc')}
       </p>
     </button>
   );
