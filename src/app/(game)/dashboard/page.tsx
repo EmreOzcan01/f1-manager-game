@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { runNextOverdueRace } from '@/lib/engine/run-race';
 import DashboardClient from './DashboardClient';
 
 export default async function DashboardPage() {
@@ -8,14 +9,48 @@ export default async function DashboardPage() {
 
   if (!user) redirect('/login');
 
-  // Fetch user's team
+  // ── Auto-resolve overdue races ──
+  // When ANY player opens the dashboard, all overdue races get simulated automatically.
+  // This is the "lazy evaluation" pattern — no cron dependency needed.
+  let autoRacesRun = 0;
+  const MAX_AUTO_RACES = 5; // Cap per page load to prevent timeouts
+
+  try {
+    for (let i = 0; i < MAX_AUTO_RACES; i++) {
+      // Check if there's an overdue upcoming race
+      const { data: overdueRace } = await supabase
+        .from('races')
+        .select('id, scheduled_at')
+        .eq('status', 'upcoming')
+        .lte('scheduled_at', new Date().toISOString())
+        .order('scheduled_at', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+
+      if (!overdueRace) break; // No more overdue races
+
+      console.log(`[AUTO-RACE] Running overdue race ${overdueRace.id} (scheduled: ${overdueRace.scheduled_at})`);
+      const result = await runNextOverdueRace();
+      
+      if (!result || !result.success) break;
+      autoRacesRun++;
+    }
+  } catch (e) {
+    console.error('[AUTO-RACE] Error during auto race resolution:', e);
+  }
+
+  if (autoRacesRun > 0) {
+    console.log(`[AUTO-RACE] Completed ${autoRacesRun} overdue race(s)`);
+  }
+
+  // ── Fetch user's team ──
   const { data: team } = await supabase
     .from('teams')
     .select('*')
     .eq('owner_id', user.id)
     .single();
 
-  // Fetch next upcoming race
+  // ── Fetch next upcoming race ──
   const { data: nextRace } = await supabase
     .from('races')
     .select('*')
@@ -24,7 +59,7 @@ export default async function DashboardPage() {
     .limit(1)
     .maybeSingle();
 
-  // Fetch all teams for standings
+  // ── Fetch standings ──
   const { data: standings } = await supabase
     .from('season_standings')
     .select(`
@@ -37,7 +72,7 @@ export default async function DashboardPage() {
     .order('total_points', { ascending: false })
     .limit(10);
 
-  // If user has a team, fetch their drivers and parts
+  // ── Fetch drivers and parts ──
   let drivers = null;
   let parts = null;
 
@@ -61,7 +96,7 @@ export default async function DashboardPage() {
     parts = carParts;
   }
 
-  // Fetch recent financial transactions
+  // ── Fetch transactions ──
   let transactions = null;
   if (team) {
     const { data: finances } = await supabase
@@ -73,7 +108,7 @@ export default async function DashboardPage() {
     transactions = finances;
   }
 
-  // Fetch user profile
+  // ── Fetch profile ──
   const { data: profile } = await supabase
     .from('profiles')
     .select('username')
